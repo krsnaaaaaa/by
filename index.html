@@ -1,243 +1,493 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Music Player</title>
-<link href="https://fonts.googleapis.com/css2?family=Monoton&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aesthetic Music Player</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  body {
+  * {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
     font-family: "Poppins", sans-serif;
-    background: #0a0a0a;
-    color: white;
-    position: relative;
+    background: #0b0a14;
+    overflow: hidden;
   }
 
-  #sparks, #fireStreaks, #smoke, #embers {
-    position: absolute; top: 0; left:0; width:100%; height:100%; pointer-events:none;
+  /* 🌈 Gradient Background */
+  .gradient-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at top left, #ff74b1 0%, transparent 60%),
+                radial-gradient(circle at bottom right, #a890fe 0%, transparent 70%),
+                radial-gradient(circle at top right, #ffcaed 0%, transparent 60%);
+    filter: blur(80px);
+    animation: shimmer 6s infinite alternate ease-in-out;
+    z-index: 0;
+  }
+  @keyframes shimmer {
+    0% { opacity: 0.8; }
+    100% { opacity: 1; }
   }
 
-  .spark { position:absolute; bottom:0; border-radius:50%; opacity:0.9; filter: drop-shadow(0 0 6px #f5f5f5);}
-  @keyframes sparkMove {0% { transform: translateY(0) scale(0.5); opacity:0.6; }50% { opacity:1; }100% { transform: translateY(-100vh) scale(1.5); opacity:0; }}
+  /* ✨ Floating Circles */
+  .float-circle {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+    animation: float 12s infinite ease-in-out;
+  }
+  @keyframes float {
+    0% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-40px) scale(1.1); }
+    100% { transform: translateY(0) scale(1); }
+  }
 
-  .streak { position:absolute; bottom:0; width:2px; border-radius:2px; opacity:0.7; }
-  @keyframes streakMove {0% { transform: translateX(0) translateY(0); opacity:0.5; }50% { opacity:1; }100% { transform: translateX(20px) translateY(-100vh); opacity:0; }}
+  /* 🦋 Butterflies */
+  .butterfly {
+    position: absolute;
+    font-size: 22px;
+    opacity: 0.9;
+    animation: fly 8s infinite ease-in-out;
+  }
+  @keyframes fly {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(40px, -60px) rotate(15deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+  }
 
-  .smoke { position:absolute; bottom:-50px; width:60px; height:60px; background: radial-gradient(circle, rgba(200,200,200,0.4) 0%, rgba(0,0,0,0) 70%); border-radius:50%; opacity:0.3; }
-  @keyframes smokeMove {0% { transform: translateY(0) scale(0.5); opacity:0.2; }50% { opacity:0.3; }100% { transform: translateY(-120vh) scale(2); opacity:0; }}
+  /* 💞 Rotating Hearts */
+  .soft-heart {
+    position: absolute;
+    font-size: 26px;
+    color: #ff8acb;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 10px #ff8acb);
+    animation: rotateHeart 9s linear infinite;
+  }
+  @keyframes rotateHeart {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
 
-  .ember { position:absolute; width:2px; height:2px; background: #f5f5f5; border-radius:50%; opacity:0.7; filter: blur(2px);}
-  @keyframes emberMove {0% { transform: translateY(0) scale(1); opacity:0.5; }50% { opacity:1; }100% { transform: translateY(-100vh) scale(1.5); opacity:0; }}
+  /* ✨ Stars */
+  .star {
+    position: absolute;
+    color: #ffe5ff;
+    font-size: 14px;
+    opacity: 0.8;
+    animation: starDrift 5s infinite ease-in-out;
+  }
+  @keyframes starDrift {
+    0% { transform: translateY(0); opacity: 0.3; }
+    50% { transform: translateY(-25px); opacity: 1; }
+    100% { transform: translateY(-50px); opacity: 0.3; }
+  }
 
+  /* 🌸 Player Card */
   .player {
     position: relative;
-    z-index: 5;
+    width: 340px;
+    padding: 28px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 25px rgba(255, 165, 230, 0.3);
     text-align: center;
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(15px);
-    border-radius: 25px;
-    padding: 40px 30px;
-    width: 360px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.8);
-    border: 3px solid #f5f5f5; /* smoke white */
-    animation: neonBorderSmoke 3s linear infinite;
+    z-index: 10;
+    transition: box-shadow 0.3s ease;
   }
 
-  @keyframes neonBorderSmoke {
-    0% { border-color: #f5f5f5; box-shadow: 0 0 10px #f5f5f5; }
-    25% { border-color: #eaeaea; box-shadow: 0 0 15px #eaeaea; }
-    50% { border-color: #dcdcdc; box-shadow: 0 0 20px #dcdcdc; }
-    75% { border-color: #eaeaea; box-shadow: 0 0 15px #eaeaea; }
-    100% { border-color: #f5f5f5; box-shadow: 0 0 10px #f5f5f5; }
+  .player.pulse {
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 25px #ff8adf55; }
+    50% { box-shadow: 0 0 40px #ff8adf99; }
+    100% { box-shadow: 0 0 25px #ff8adf55; }
   }
 
-  h1 { 
-    margin-bottom: 15px; 
-    font-size: 28px; 
-    letter-spacing:2px; 
-    font-family: 'Monoton', cursive; 
-    color: white;
-    text-shadow: none; /* removed text border/glow */
+  /* 💗 Profile Picture */
+  .pfp {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    border: 4px solid #ff9cd1;
+    box-shadow: 0 0 25px #ffb5e2aa;
+    object-fit: cover;
   }
 
-  .wave { display:flex; justify-content:center; align-items:flex-end; height:50px; margin:20px 0; gap:4px; }
-  .bar { width:6px; height:10px; background:#f5f5f5; border-radius:3px; animation:bounce 1s infinite ease-in-out; animation-play-state:paused; }
-  .bar:nth-child(1){animation-delay:0s;} .bar:nth-child(2){animation-delay:0.1s;}
-  .bar:nth-child(3){animation-delay:0.2s;} .bar:nth-child(4){animation-delay:0.3s;} .bar:nth-child(5){animation-delay:0.4s;}
-  @keyframes bounce{0%,100%{height:10px}50%{height:40px}}
-  .wave.active .bar{animation-play-state:running;}
+  h1 {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
 
-  .controls { display:flex; justify-content:space-around; align-items:center; margin-top:15px; }
-  .btn { background: linear-gradient(145deg,#f5f5f5,#eaeaea); border:none; width:60px; height:60px; border-radius:50%; cursor:pointer; font-size:24px; color:black; transition:0.3s; box-shadow:0 0 20px rgba(245,245,245,0.6);}
-  .btn:hover { transform:scale(1.1); box-shadow:0 0 30px rgba(245,245,245,0.9); }
+  /* 🎀 Now Playing */
+  .now-playing {
+    color: #ffbdf0;
+    font-size: 18px;
+    text-shadow: 0 0 10px #ff97dd, 0 0 18px #ff5bc9;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    margin-bottom: 18px;
+  }
 
-  .seekbar { width:100%; margin:15px 0; }
+  .now-playing.active {
+    opacity: 1;
+  }
+
+  /* 🎵 Wave Animation */
+  .wave {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 5px;
+    height: 40px;
+    margin: 22px 0;
+  }
+
+  .bar {
+    width: 6px;
+    height: 12px;
+    background: linear-gradient(to top, #ff9cd1, #ffb7e5);
+    border-radius: 4px;
+    animation: bounce 0.8s ease-in-out infinite;
+    animation-play-state: paused;
+  }
+
+  .bar:nth-child(2) { animation-delay: 0.1s; }
+  .bar:nth-child(3) { animation-delay: 0.2s; }
+  .bar:nth-child(4) { animation-delay: 0.3s; }
+  .bar:nth-child(5) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 100% { height: 10px; }
+    50% { height: 38px; }
+  }
+
+  .wave.active .bar {
+    animation-play-state: running;
+  }
+
+  /* 🎚 Progress Bar */
+  .progress-container {
+    margin: 18px 0;
+  }
+
   input[type="range"] {
-      width: 100%;
-      -webkit-appearance: none;
-      height: 6px;
-      border-radius: 5px;
-      background: rgba(245,245,245,0.3); /* smoke white */
-      outline: none;
-      cursor: pointer;
+    width: 100%;
+    height: 6px;
+    appearance: none;
+    background: rgba(255, 215, 240, 0.3);
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
   }
 
   input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #f5f5f5; /* thumb color smoke white */
-      cursor: pointer;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #ff9cd1;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px #ff9cd1;
   }
+
   input[type="range"]::-moz-range-thumb {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #f5f5f5;
-      cursor: pointer;
-  }
-  input[type="range"]::-ms-thumb {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      background: #f5f5f5;
-      cursor: pointer;
+    width: 14px;
+    height: 14px;
+    background: #ff9cd1;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 10px #ff9cd1;
   }
 
-  .heart { font-size:28px; cursor:pointer; transition:0.3s; color:white; }
-  .heart.liked{ color:#f5f5f5; transform:scale(1.3); text-shadow:0 0 20px #f5f5f5; }
+  /* 🎧 Controls */
+  .controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
 
-  .counter { font-size:14px; color:#f5f5f5; margin-left:5px; }
-  .view-counter { font-size:14px; color:white; margin-left:5px; }
+  .btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 25px;
+    background: linear-gradient(135deg, #ff9cd1, #ffb5e2);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 18px #ff9cd1aa;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+
+  .btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px #ff9cd1;
+  }
+
+  .btn:active {
+    transform: scale(0.95);
+  }
+
+  /* ❤️ Like Section */
+  .like-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .heart {
+    font-size: 32px;
+    cursor: pointer;
+    color: #ffc7e6;
+    transition: transform 0.3s ease, text-shadow 0.3s ease;
+    user-select: none;
+  }
+
+  .heart:hover {
+    transform: scale(1.1);
+  }
+
+  .heart.liked {
+    transform: scale(1.2);
+    text-shadow: 0 0 15px #ff9cd1;
+    color: #ff77c5;
+  }
+
+  .like-count {
+    color: #ffcbe9;
+    font-size: 20px;
+    font-weight: 600;
+    min-width: 30px;
+  }
+
+  /* 🎉 Confetti */
+  .confetti {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+  }
 </style>
 </head>
 <body>
-  <div id="sparks"></div>
-  <div id="fireStreaks"></div>
-  <div id="smoke"></div>
-  <div id="embers"></div>
 
-  <div class="player">
-    <h1 id="songName"> Byee Princess </h1>
+<!-- Background Elements -->
+<div class="gradient-bg"></div>
 
-    <div class="wave" id="wave">
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-    </div>
+<div class="float-circle" style="top:12%; left:10%; animation-delay:0s;"></div>
+<div class="float-circle" style="bottom:15%; right:8%; animation-delay:2s;"></div>
+<div class="float-circle" style="top:60%; left:25%; animation-delay:4s;"></div>
 
-    <div class="seekbar">
-      <input type="range" id="progress" value="0">
-    </div>
+<div class="butterfly" style="top:20%; left:15%; animation-delay:1s;">🦋</div>
+<div class="butterfly" style="top:70%; left:70%; animation-delay:3s;">🦋</div>
 
-    <div class="controls">
-      <button class="btn" id="playBtn">▶</button>
-      <span class="heart" id="heart">♡</span><span class="counter" id="likeCount">0</span>
-      <span class="view-counter" id="viewCount"></span>
-    </div>
+<div class="soft-heart" style="top:30%; left:80%;">💖</div>
+<div class="soft-heart" style="top:65%; left:25%;">💗</div>
 
-    <audio id="audio">
-      <source src="https://raw.githubusercontent.com/krsnaaaaaa/songs/main/alvida.mpeg" download>Download alvida.mpeg" type="audio/mpeg">
-    </audio>
+<div class="star" style="top:40%; left:30%;">✦</div>
+<div class="star" style="top:55%; left:75%;">✧</div>
+<div class="star" style="top:20%; left:60%;">✦</div>
+
+<!-- Music Player -->
+<div class="player" id="player">
+  <img src="https://raw.githubusercontent.com/krsnaaaaaa/by/main/pp.jpeg
+" class="pfp" alt="Profile Picture" />
+  <h1>Bye Princess</h1>
+  <div class="now-playing" id="nowPlaying">Now Playing…</div>
+
+  <div class="wave" id="wave">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
   </div>
 
-  <script>
-    const sparksContainer = document.getElementById("sparks");
-    const streakContainer = document.getElementById("fireStreaks");
-    const smokeContainer = document.getElementById("smoke");
-    const emberContainer = document.getElementById("embers");
-    const wave = document.getElementById("wave");
-    const audio = document.getElementById("audio");
-    const playBtn = document.getElementById("playBtn");
-    const heart = document.getElementById("heart");
-    const likeCount = document.getElementById("likeCount");
-    const viewCount = document.getElementById("viewCount");
+  <div class="progress-container">
+    <input type="range" id="progress" value="0" min="0" max="100">
+  </div>
 
-    // ==============================
-    // 🔧 CONTROL INITIAL LIKE & VIEW COUNTS HERE
-    let likes = 0;  // <-- Change initial likes here
-    let views = 0;  // <-- Change initial views here
-    localStorage.setItem("songLikes", likes);
-    localStorage.setItem("songViews", views);
-    localStorage.setItem("songLiked", false);
+  <div class="controls">
+    <button class="btn" id="playBtn">▶</button>
+    <div class="like-section">
+      <span class="heart" id="heart">♡</span>
+      <span class="like-count" id="likeCount">0</span>
+    </div>
+  </div>
 
-    let liked = false;
+  <audio id="audio">
+    <source src="https://raw.githubusercontent.com/krsnaaaaaa/songs/main/alvida.mpeg" type="audio/mpeg">
+  </audio>
+</div>
+
+<script>
+  // Get DOM elements
+  const audio = document.getElementById('audio');
+  const playBtn = document.getElementById('playBtn');
+  const wave = document.getElementById('wave');
+  const progress = document.getElementById('progress');
+  const heart = document.getElementById('heart');
+  const likeCount = document.getElementById('likeCount');
+  const player = document.getElementById('player');
+  const nowPlaying = document.getElementById('nowPlaying');
+
+  // Key for localStorage
+  const LIKE_STORAGE_KEY = 'aestheticMusicPlayerLikes';
+
+  // 🔄 Initialize like state: Retrieve from localStorage or default to 0
+  let likes = parseInt(localStorage.getItem(LIKE_STORAGE_KEY)) || 0;
+  // Determine initial isLiked state based on whether likes is > 0
+  // NOTE: A more robust solution for multiple users would store a unique identifier for the current user and check if they liked it.
+  // For a single-user, single-song player, we'll assume it's liked if the stored count is 1 or more.
+  let isLiked = likes > 0; 
+  
+  // 💾 Function to save the like count to localStorage
+  function saveLikes() {
+      localStorage.setItem(LIKE_STORAGE_KEY, likes);
+  }
+
+  // Update heart appearance
+  function updateHeartUI() {
+    if (isLiked) {
+      heart.classList.add('liked');
+      heart.textContent = '❤️';
+    } else {
+      heart.classList.remove('liked');
+      heart.textContent = '♡';
+    }
+  }
+  
+  // Initialize UI (now includes fetching the stored value)
+  function init() {
     likeCount.textContent = likes;
-    viewCount.textContent = "Views: " + views;
+    updateHeartUI();
+  }
 
-    let animating = false;
-
-    function createSpark(){ const spark = document.createElement("div"); spark.className="spark"; spark.style.left=Math.random()*100 + "vw"; spark.style.width=(2+Math.random()*4)+"px"; spark.style.height=(6+Math.random()*12)+"px"; spark.style.background=["#f5f5f5","#eaeaea","#dcdcdc","#f5f5f5"][Math.floor(Math.random()*4)]; spark.style.animation=`sparkMove ${0.5+Math.random()}s linear forwards`; sparksContainer.appendChild(spark); setTimeout(()=>spark.remove(),2000); }
-    function createStreak(){ const streak=document.createElement("div"); streak.className="streak"; streak.style.left=Math.random()*100 + "vw"; streak.style.height=(30+Math.random()*60)+"px"; streak.style.background="#f5f5f5"; streak.style.animation=`streakMove ${1+Math.random()*2}s linear forwards`; streakContainer.appendChild(streak); setTimeout(()=>streak.remove(),3000);}
-    function createSmoke(){ const smoke=document.createElement("div"); smoke.className="smoke"; smoke.style.left=Math.random()*100 + "vw"; smoke.style.width=40+Math.random()*60+"px"; smoke.style.height=40+Math.random()*60+"px"; smoke.style.animation=`smokeMove ${4+Math.random()*3}s linear forwards`; smokeContainer.appendChild(smoke); setTimeout(()=>smoke.remove(),7000);}
-    function createEmber(){ const ember=document.createElement("div"); ember.className="ember"; ember.style.left=Math.random()*100 + "vw"; ember.style.animation=`emberMove ${2+Math.random()*2}s linear forwards`; emberContainer.appendChild(ember); setTimeout(()=>ember.remove(),4000);}
-
-    function startAnimations(){
-      if(animating) return;
-      animating=true;
-      wave.classList.add("active");
-      setInterval(createSpark,80);
-      setInterval(createStreak,100);
-      setInterval(createSmoke,300);
-      setInterval(createEmber,150);
+  // Play/Pause functionality
+  playBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play();
+      playBtn.textContent = '⏸';
+      wave.classList.add('active');
+      nowPlaying.classList.add('active');
+      player.classList.add('pulse');
+    } else {
+      audio.pause();
+      playBtn.textContent = '▶';
+      wave.classList.remove('active');
+      nowPlaying.classList.remove('active');
+      player.classList.remove('pulse');
     }
+  });
 
-    // Increment view on page load
-    views++;
-    localStorage.setItem("songViews", views);
-    viewCount.textContent = "Views: " + views;
-
-    // Play/Pause button
-    playBtn.addEventListener("click", ()=>{
-      if(audio.paused){
-        audio.play();
-        playBtn.textContent="⏸";
-        startAnimations();
-      } else {
-        audio.pause();
-        playBtn.textContent="▶";
-        wave.classList.remove("active");
-      }
-    });
-
-    // Seekbar
-    document.getElementById("progress").addEventListener("input", (e)=>{
-      audio.currentTime = (e.target.value/100)*audio.duration;
-    });
-
-    // Like button
-    heart.addEventListener("click", ()=>{
-      heart.classList.toggle("liked");
-      liked = heart.classList.contains("liked");
-      heart.textContent = liked ? "❤️":"♡";
-      if(liked){ likes++; } else { likes--; if(likes<0) likes=0; }
-      likeCount.textContent=likes;
-      localStorage.setItem("songLikes", likes);
-      localStorage.setItem("songLiked", liked);
-    });
-
-    // 🔊 AUTOPLAY ON USER INTERACTION
-    function tryPlayAudio() {
-      if(audio.paused){
-        audio.play().then(()=>{
-          playBtn.textContent="⏸";
-          startAnimations();
-        }).catch(err=>{
-          console.log("Autoplay blocked:", err);
-        });
-      }
-      // Remove listeners after first interaction
-      document.body.removeEventListener("click", tryPlayAudio);
-      document.body.removeEventListener("keydown", tryPlayAudio);
+  // Progress bar update
+  audio.addEventListener('timeupdate', () => {
+    if (audio.duration) {
+      progress.value = (audio.currentTime / audio.duration) * 100;
     }
+  });
 
-    document.body.addEventListener("click", tryPlayAudio);
-    document.body.addEventListener("keydown", tryPlayAudio);
-  </script>
+  // Seek functionality
+  progress.addEventListener('input', () => {
+    if (audio.duration) {
+      audio.currentTime = (progress.value / 100) * audio.duration;
+    }
+  });
+
+  // Like functionality (Modified to include localStorage update)
+  heart.addEventListener('click', () => {
+    if (!isLiked) {
+      // Like the song
+      likes++;
+      isLiked = true;
+      createConfetti();
+    } else {
+      // Unlike the song
+      if (likes > 0) {
+        likes--;
+      }
+      isLiked = false;
+    }
+    
+    // Save the new count to localStorage
+    saveLikes();
+    
+    likeCount.textContent = likes;
+    updateHeartUI();
+  });
+
+  // Confetti effect
+  function createConfetti() {
+    const confettiEmojis = ['✨', '💖', '🌸', '💫', '⭐', '💝', '🎀', '🌺'];
+    const confettiCount = 30;
+    
+    // Get player position
+    const rect = player.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    for (let i = 0; i < confettiCount; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.textContent = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
+      confetti.style.fontSize = (16 + Math.random() * 10) + 'px';
+      confetti.style.left = centerX + 'px';
+      confetti.style.top = centerY + 'px';
+      
+      document.body.appendChild(confetti);
+
+      // Random angle and distance
+      const angle = (Math.PI * 2 * i) / confettiCount + (Math.random() - 0.5) * 0.5;
+      const distance = 80 + Math.random() * 120;
+      const xOffset = Math.cos(angle) * distance;
+      const yOffset = Math.sin(angle) * distance;
+
+      // Animate confetti
+      confetti.animate([
+        {
+          transform: 'translate(0, 0) scale(1) rotate(0deg)',
+          opacity: 1
+        },
+        {
+          transform: `translate(${xOffset}px, ${yOffset}px) scale(0.3) rotate(${Math.random() * 360}deg)`,
+          opacity: 0
+        }
+      ], {
+        duration: 1000,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      }).onfinish = () => {
+        confetti.remove();
+      };
+    }
+  }
+
+  // Initialize on page load
+  init();
+</script>
+
 </body>
 </html>
